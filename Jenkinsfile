@@ -58,7 +58,7 @@ pipeline {
         stage('Docker Push to DockerHub') {
             steps {
                 script {
-                    withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
+                    withCredentials([usernamePassword(credentialsId: 'hitfast', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
                         echo "Docker Hub Username: ${DOCKERHUB_USERNAME}"  // Check the username
                         echo "Docker Image: ${DOCKER_IMAGE}"  // Check the image
                         sh "docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD}"
@@ -88,4 +88,5 @@ pipeline {
         }
     }
 }
+
 
