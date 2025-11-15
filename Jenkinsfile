@@ -36,7 +36,7 @@ pipeline {
             steps {
                 withSonarQubeEnv('sonar-server') {
                     sh """
-                    $SCANNER_HOME/bin/sonar-scanner \
+                    ${SCANNER_HOME}/bin/sonar-scanner \
                         -Dsonar.projectName=Kastro \
                         -Dsonar.projectKey=KastroKey \
                         -Dsonar.java.binaries=target
@@ -53,7 +53,7 @@ pipeline {
 
         stage('Docker Build') {
             steps {
-                sh "docker build -t $DOCKER_IMAGE ."
+                sh "docker build -t ${DOCKER_IMAGE} ."
             }
         }
 
@@ -61,8 +61,8 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'hitfast', variable: 'DOCKERHUB_TOKEN')]) {
                     sh """
-                    echo \$DOCKERHUB_TOKEN | docker login -u ${DOCKERHUB_USERNAME} --password-stdin
-                    docker push $DOCKER_IMAGE
+                        echo \$DOCKERHUB_TOKEN | docker login -u ${DOCKERHUB_USERNAME} --password-stdin
+                        docker push ${DOCKER_IMAGE}
                     """
                 }
             }
@@ -70,18 +70,11 @@ pipeline {
 
         stage('Run Docker Container') {
             steps {
-        script {
-            withCredentials([usernamePassword(
-                credentialsId: 'hitfast',
-                usernameVariable: 'DOCKERHUB_USERNAME',
-                passwordVariable: 'DOCKERHUB_PASSWORD'
-            )]) {
                 sh """
-                    echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
-                    docker push hitfast/spotify-app:latest
+                   docker rm -f spotify-app || true
+                   docker run -d --name spotify-app -p 5555:5555 ${DOCKER_IMAGE}
                 """
-               }
-           }
+            }
         }
     }
 
@@ -92,7 +85,3 @@ pipeline {
         }
     }
 }
-
-
-
-
