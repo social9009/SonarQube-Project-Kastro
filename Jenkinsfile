@@ -58,11 +58,13 @@ pipeline {
         stage('Docker Push to DockerHub') {
             steps {
                 script {
-                    withCredentials([usernamePassword(credentialsId: 'hitfast', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
-                        echo "Docker Hub Username: ${DOCKERHUB_USERNAME}"  // Check the username
-                        echo "Docker Image: ${DOCKER_IMAGE}"  // Check the image
-                        sh "docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD}"
-                        sh "docker push $DOCKER_IMAGE"
+                    withCredentials([string(credentialsId: 'hitfast', variable: 'DOCKERHUB_TOKEN')]) {
+                             sh """
+                                 echo \$DOCKERHUB_TOKEN | docker login -u ${DOCKERHUB_USERNAME} --password-stdin
+                                 docker push $DOCKER_IMAGE
+                                       """
+                        }
+
                     }
                 }
             }
@@ -88,5 +90,6 @@ pipeline {
         }
     }
 }
+
 
 
