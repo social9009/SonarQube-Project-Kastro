@@ -70,12 +70,18 @@ pipeline {
 
         stage('Run Docker Container') {
             steps {
-                script {
-                    sh "docker stop spotify-app || true"
-                    sh "docker rm spotify-app || true"
-                    sh "docker run -d --name spotify-app -p 5555:5555 $DOCKER_IMAGE"
-                }
-            }
+        script {
+            withCredentials([usernamePassword(
+                credentialsId: 'hitfast',
+                usernameVariable: 'DOCKERHUB_USERNAME',
+                passwordVariable: 'DOCKERHUB_PASSWORD'
+            )]) {
+                sh """
+                    echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+                    docker push hitfast/spotify-app:latest
+                """
+               }
+           }
         }
     }
 
@@ -86,6 +92,7 @@ pipeline {
         }
     }
 }
+
 
 
 
